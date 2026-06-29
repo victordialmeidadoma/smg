@@ -55,7 +55,6 @@
 
   /* ---------- App shell ---------- */
   .app{display:grid; grid-template-columns:264px 1fr; min-height:100vh;}
-  @media (max-width:880px){ .app{grid-template-columns:1fr;} .sidebar{display:none;} .sidebar.open{display:flex; position:fixed; z-index:60; height:100vh; width:280px; box-shadow:var(--shadow-lg);} .hamburger-btn{display:flex;} }
   .hamburger-btn{
     display:none; align-items:center; justify-content:center; width:34px; height:34px; border-radius:8px; border:1px solid var(--line-strong);
     background:#fff; color:var(--ink-dim); cursor:pointer; flex-shrink:0;
@@ -333,6 +332,14 @@
 
   .scrollbar-thin::-webkit-scrollbar{width:6px;}
   .scrollbar-thin::-webkit-scrollbar-thumb{background:var(--line-strong); border-radius:3px;}
+  /* Regras responsivas — mantidas ao final do CSS de propósito,
+     para garantir que sempre vençam sobre as regras de desktop. */
+  @media (max-width:880px){
+    .app{grid-template-columns:1fr;}
+    .sidebar{display:none;}
+    .sidebar.open{display:flex; position:fixed; z-index:60; height:100vh; width:280px; box-shadow:var(--shadow-lg);}
+    .hamburger-btn{display:flex;}
+  }
 </style>
 </head>
 <body>
