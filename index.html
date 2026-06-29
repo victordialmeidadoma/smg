@@ -671,7 +671,7 @@ function openChangePasswordModal(){
 }
 
 /* ===================== CSV ===================== */
-const CSV_COLUMNS = ['numero','titulo','categoria','unidade','fluxo','tramitacao','credor','arquivos','valor','quando','exemplos','naoUtilizar','atencao','observacao','comoCadastrar','link','notas'];
+const CSV_COLUMNS = ['numero','titulo','categoria','unidade','fluxo','tramitacao','credor','arquivos','valor','quando','exemplos','naoUtilizar','atencao','observacao','comoCadastrar','notas'];
 
 function detectDelimiter(text){
   const firstLine = text.split(/\r?\n/)[0] || '';
@@ -759,7 +759,7 @@ async function importCsv(text){
       quando: get('quando'), exemplos,
       naoUtilizar: get('naoUtilizar'), atencao: get('atencao'),
       observacao: get('observacao'), comoCadastrar: get('comoCadastrar'),
-      link: get('link'), notas: get('notas'),
+      notas: get('notas'),
     };
 
     const existing = protocolos.find(p=>p.numero.toLowerCase()===numero.toLowerCase());
@@ -791,13 +791,13 @@ function downloadCsvTemplate(){
     '001','Serviço Público','Atendimento ao Cidadão','Atendimento Geral','Fluxo Livre','Sim','Não','Sim','Não',
     'Sempre que a demanda for apresentada por um cidadão, empresa ou entidade externa.',
     'Requerimento|Entrega de documentos|Correspondência externa',
-    'Demandas internas entre setores.','', '', 'Confira o setor de destino antes de protocolar.', '', ''
+    'Demandas internas entre setores.','', '', 'Confira o setor de destino antes de protocolar.', ''
   ].map(csvEscape).join(',');
   const sample2 = [
     '002','Procedimento Administrativo de Usuário Interno','Atendimento Interno','Setor demandante','Fluxo Livre','Sim','Não','Sim','Não',
     'Para comunicações e solicitações administrativas internas entre setores da prefeitura.',
     'Memorando|Solicitação de informações|Encaminhamento de documentos',
-    '', '', '', '', '', ''
+    '', '', '', '', ''
   ].map(csvEscape).join(',');
   const content = [header, sample1, sample2].join('\n');
   const blob = new Blob([content], {type:'text/csv;charset=utf-8;'});
@@ -1103,7 +1103,7 @@ function renderCategoryView(){
 function blankProtocolo(){
   return {id:uid(), numero:'', titulo:'', categoriaId:activeCategoriaId, unidade:'', fluxo:'Fluxo Livre',
     tramitacao:false, credor:false, arquivos:false, valor:false, quando:'', exemplos:[],
-    naoUtilizar:'', atencao:'', observacao:'', comoCadastrar:'', link:'', notas:''};
+    naoUtilizar:'', atencao:'', observacao:'', comoCadastrar:'', notas:''};
 }
 
 function renderProtocolFormPage(protocolo, isNew){
@@ -1153,7 +1153,6 @@ function renderProtocolFormPage(protocolo, isNew){
       <div class="field"><label>Atenção (opcional)</label><textarea id="f_atencao" placeholder="Alertas importantes...">${escapeHtml(protocolo.atencao)}</textarea></div>
       <div class="field"><label>Observação prática (opcional)</label><textarea id="f_obs" placeholder="Observações adicionais...">${escapeHtml(protocolo.observacao)}</textarea></div>
       <div class="field"><label>Como cadastrar com segurança (opcional)</label><textarea id="f_comocad" placeholder="Orientações de cadastramento...">${escapeHtml(protocolo.comoCadastrar)}</textarea></div>
-      <div class="field"><label>Link no sistema (opcional)</label><input type="url" id="f_link" value="${escapeHtml(protocolo.link)}" placeholder="https://..." /></div>
       <div class="field"><label>Notas internas (opcional)</label><textarea id="f_notas" placeholder="Observações internas, contatos do setor...">${escapeHtml(protocolo.notas)}</textarea></div>
 
       <div class="save-bar">
@@ -1216,7 +1215,6 @@ function renderProtocolFormPage(protocolo, isNew){
     protocolo.atencao = $('#f_atencao').value.trim();
     protocolo.observacao = $('#f_obs').value.trim();
     protocolo.comoCadastrar = $('#f_comocad').value.trim();
-    protocolo.link = $('#f_link').value.trim();
     protocolo.notas = $('#f_notas').value.trim();
 
     if(isNew) protocolos.push(protocolo);
@@ -1300,11 +1298,6 @@ function renderProtocolDetail(){
       ${attachmentBlock(p.id,'oficioModelo','Ofício modelo')}
     </div>
   </div>`;
-
-  html += `<div class="section"><h3>Link no sistema</h3>`;
-  if(p.link){ html += `<p><a href="${escapeHtml(p.link)}" target="_blank" rel="noopener">${escapeHtml(p.link)}</a></p>`; }
-  else { html += `<p class="none-txt">Nenhum link cadastrado.</p>`; }
-  html += `</div>`;
 
   html += `<div class="section"><h3>Notas internas</h3>`;
   if(p.notas){ html += `<p>${escapeHtml(p.notas).replace(/\n/g,'<br>')}</p>`; }
