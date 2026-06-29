@@ -1,0 +1,1413 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Configurações do Sistema de Gestão Municipal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F3F5F9;
+    --surface:#FFFFFF;
+    --surface-alt:#F7F8FB;
+    --line:#E6E9EF;
+    --line-strong:#D8DCE4;
+    --ink:#1B2026;
+    --ink-dim:#6B7280;
+    --ink-faint:#9AA1AC;
+    --blue:#2F6FED;
+    --blue-dark:#1D4FC4;
+    --blue-soft:#EAF0FE;
+    --blue-grad-1:#1E58D8;
+    --blue-grad-2:#3E82F0;
+    --green:#16A472;
+    --green-soft:#E5F6EF;
+    --orange:#E08B2C;
+    --orange-soft:#FBEEDE;
+    --purple:#7C5CE0;
+    --purple-soft:#EFEAFB;
+    --red:#E0524A;
+    --red-soft:#FBE9E8;
+    --teal:#1597A6;
+    --teal-soft:#E3F3F5;
+    --pink:#D9568F;
+    --pink-soft:#FCEAF1;
+    --radius:10px;
+    --radius-sm:7px;
+    --shadow-sm: 0 1px 2px rgba(20,30,50,0.04);
+    --shadow-md: 0 4px 14px rgba(20,30,55,0.08);
+    --shadow-lg: 0 16px 40px rgba(20,30,55,0.14);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg); color:var(--ink); min-height:100vh;
+    font-family:'Inter', system-ui, sans-serif; font-weight:400;
+    -webkit-font-smoothing:antialiased; font-size:14px;
+  }
+  ::selection{background:var(--blue-soft);}
+  a{color:var(--blue); text-decoration:none;}
+  a:hover{text-decoration:underline;}
+  button{font-family:inherit;}
+  .cat-colors{ --c0:var(--blue); --c0-soft:var(--blue-soft); --c1:var(--green); --c1-soft:var(--green-soft); --c2:var(--orange); --c2-soft:var(--orange-soft); --c3:var(--purple); --c3-soft:var(--purple-soft); --c4:var(--red); --c4-soft:var(--red-soft); --c5:var(--teal); --c5-soft:var(--teal-soft); --c6:var(--pink); --c6-soft:var(--pink-soft); }
+
+  /* ---------- App shell ---------- */
+  .app{display:grid; grid-template-columns:264px 1fr; min-height:100vh;}
+  @media (max-width:880px){ .app{grid-template-columns:1fr;} .sidebar{display:none;} .sidebar.open{display:block; position:fixed; z-index:60; height:100vh;} }
+
+  .sidebar{
+    background:var(--surface); border-right:1px solid var(--line);
+    display:flex; flex-direction:column; height:100vh; position:sticky; top:0;
+  }
+  .sidebar-head{padding:22px 22px 18px; display:flex; align-items:center; gap:10px; border-bottom:1px solid var(--line);}
+  .logo-mark{
+    width:32px; height:32px; border-radius:9px; background:linear-gradient(135deg,var(--blue-grad-1),var(--blue-grad-2));
+    display:flex; align-items:center; justify-content:center; color:#fff; font-weight:700; font-size:14px; flex-shrink:0;
+  }
+  .sidebar-head h1{font-size:15.5px; font-weight:700; margin:0; line-height:1.2; color:var(--ink);}
+  .sidebar-head p{margin:0; font-size:11px; color:var(--ink-faint); font-weight:500;}
+
+  .nav-scroll{flex:1; overflow-y:auto; padding:14px 0;}
+  .nav-section-label{padding:14px 22px 8px; font-size:10.5px; font-weight:700; letter-spacing:0.07em; color:var(--ink-faint); text-transform:uppercase;}
+  .nav-item{
+    display:flex; align-items:center; gap:11px; width:100%; text-align:left; padding:9px 22px; border:none; background:none;
+    cursor:pointer; color:var(--ink-dim); font-size:13.5px; font-weight:500; border-radius:0;
+  }
+  .nav-item:hover{background:var(--surface-alt); color:var(--ink);}
+  .nav-item.active{background:var(--blue-soft); color:var(--blue-dark); font-weight:600;}
+  .nav-item svg{flex-shrink:0; opacity:0.85;}
+  .nav-item .count{margin-left:auto; font-size:11.5px; color:var(--ink-faint); font-weight:600; background:var(--surface-alt); padding:1px 7px; border-radius:20px;}
+  .nav-item.active .count{background:#fff; color:var(--blue-dark);}
+
+  .cat-item{display:flex; align-items:center; gap:10px; flex:1; min-width:0; text-align:left; padding:8px 4px 8px 22px; border:none; background:none; cursor:pointer; color:var(--ink-dim); font-size:13.3px; font-weight:500;}
+  .cat-item:hover{background:var(--surface-alt); color:var(--ink);}
+  .cat-item.active{background:var(--blue-soft); color:var(--blue-dark); font-weight:600;}
+  .cat-dot{width:8px; height:8px; border-radius:50%; flex-shrink:0;}
+  .cat-item .name{flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .cat-item .count{font-size:11px; color:var(--ink-faint); font-weight:600;}
+
+  .cat-item-row{display:flex; align-items:center;}
+  .cat-chevron{
+    border:none; background:none; cursor:pointer; color:var(--ink-faint); padding:8px 18px 8px 4px; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .cat-chevron:hover{color:var(--ink);}
+  .cat-chevron svg{transition:transform .15s ease;}
+  .cat-chevron.open svg{transform:rotate(90deg);}
+  .cat-children{padding:2px 0 4px;}
+  .cat-children-empty{padding:5px 22px 9px 50px; font-size:11.5px; color:var(--ink-faint); font-style:italic;}
+  .cat-child-item{
+    display:flex; align-items:center; gap:9px; width:100%; text-align:left; padding:6px 22px 6px 50px; border:none;
+    background:none; cursor:pointer; color:var(--ink-dim); font-size:12.5px;
+  }
+  .cat-child-item:hover{background:var(--surface-alt); color:var(--ink);}
+  .cat-child-item.active{background:var(--blue-soft); color:var(--blue-dark); font-weight:600;}
+  .cat-child-item .num{font-weight:700; color:var(--blue); flex-shrink:0; font-size:11px;}
+  .cat-child-item .ttl{overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+
+  .add-cat-btn{
+    display:flex; align-items:center; gap:8px; width:calc(100% - 28px); margin:6px 14px 0; padding:9px 12px; border-radius:var(--radius-sm);
+    border:1px dashed var(--line-strong); background:none; color:var(--ink-dim); font-size:12.5px; font-weight:600; cursor:pointer;
+  }
+  .add-cat-btn:hover{border-color:var(--blue); color:var(--blue);}
+
+  .sidebar-foot{padding:16px 22px; border-top:1px solid var(--line);}
+  .mode-toggle{display:flex; align-items:center; justify-content:space-between; gap:10px;}
+  .mode-toggle .lbl{font-size:12px; font-weight:600; color:var(--ink-dim);}
+  .switch{
+    position:relative; width:42px; height:23px; border-radius:14px; background:#E2E5EA; border:none; cursor:pointer; flex-shrink:0;
+  }
+  .switch::after{content:""; position:absolute; top:2px; left:2px; width:19px; height:19px; border-radius:50%; background:#fff; box-shadow:var(--shadow-sm); transition:transform .18s ease;}
+  .switch.on{background:var(--blue);}
+  .switch.on::after{transform:translateX(19px);}
+  .edit-pill{display:inline-flex; align-items:center; gap:6px; font-size:11px; font-weight:700; color:var(--blue-dark); margin-top:10px;}
+  .edit-pill .dot{width:6px; height:6px; border-radius:50%; background:var(--blue);}
+
+  /* ---------- Main ---------- */
+  .main{padding:0; overflow-y:auto; height:100vh;}
+  .topbar{
+    background:var(--surface); border-bottom:1px solid var(--line); padding:16px 32px;
+    display:flex; align-items:center; gap:16px; position:sticky; top:0; z-index:20;
+  }
+  .topbar .crumb{font-size:13px; color:var(--ink-faint); font-weight:500;}
+  .topbar .crumb b{color:var(--ink); font-weight:600;}
+  .topbar .search-wrap{margin-left:auto; position:relative; width:280px;}
+  .topbar input[type=search]{
+    width:100%; padding:8px 12px 8px 34px; border:1px solid var(--line); border-radius:var(--radius-sm); background:var(--surface-alt);
+    font-size:13px; color:var(--ink); font-family:'Inter',sans-serif;
+  }
+  .topbar input[type=search]:focus{outline:none; border-color:var(--blue); background:#fff;}
+  .topbar .search-wrap svg{position:absolute; left:11px; top:50%; transform:translateY(-50%); color:var(--ink-faint);}
+
+  .content{padding:32px;}
+  @media (max-width:700px){ .content{padding:18px;} .topbar{padding:12px 18px;} }
+
+  /* hero */
+  .hero{
+    background:linear-gradient(120deg,var(--blue-grad-1),var(--blue-grad-2));
+    border-radius:16px; padding:42px 40px 46px; color:#fff; position:relative; overflow:hidden; margin-bottom:30px;
+  }
+  .hero::before{content:""; position:absolute; right:-60px; top:-60px; width:260px; height:260px; border-radius:50%; background:rgba(255,255,255,0.08);}
+  .hero::after{content:""; position:absolute; right:60px; bottom:-90px; width:180px; height:180px; border-radius:50%; background:rgba(255,255,255,0.06);}
+  .hero .eyebrow{font-size:11.5px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; opacity:0.78; margin-bottom:10px;}
+  .hero h2{font-size:27px; font-weight:700; margin:0 0 6px; position:relative; z-index:1;}
+  .hero p{margin:0 0 22px; font-size:14px; opacity:0.85; position:relative; z-index:1;}
+  .hero-search{position:relative; max-width:520px; z-index:1;}
+  .hero-search input{
+    width:100%; padding:14px 16px 14px 46px; border:none; border-radius:var(--radius); font-size:14.5px; color:var(--ink);
+    box-shadow:var(--shadow-md);
+  }
+  .hero-search input:focus{outline:3px solid rgba(255,255,255,0.35);}
+  .hero-search svg{position:absolute; left:16px; top:50%; transform:translateY(-50%); color:var(--ink-faint); z-index:2;}
+
+  .section-head{display:flex; align-items:baseline; justify-content:space-between; margin-bottom:16px;}
+  .section-head h3{font-size:13px; font-weight:700; letter-spacing:0.04em; text-transform:uppercase; color:var(--ink-faint); margin:0;}
+
+  .cat-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:16px; margin-bottom:36px;}
+  .cat-card{
+    background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:20px; cursor:pointer;
+    transition:box-shadow .12s ease, border-color .12s ease; box-shadow:var(--shadow-sm);
+  }
+  .cat-card:hover{box-shadow:var(--shadow-md); border-color:var(--line-strong);}
+  .cat-icon{width:38px; height:38px; border-radius:9px; display:flex; align-items:center; justify-content:center; margin-bottom:14px;}
+  .cat-card h4{font-size:14.5px; font-weight:600; margin:0 0 4px; color:var(--ink);}
+  .cat-card p{font-size:12.5px; color:var(--ink-faint); margin:0;}
+
+  .empty-block{
+    text-align:center; padding:64px 30px; background:var(--surface); border:1px dashed var(--line-strong); border-radius:var(--radius);
+    color:var(--ink-dim);
+  }
+  .empty-block .ico{width:46px; height:46px; border-radius:12px; background:var(--blue-soft); color:var(--blue); display:flex; align-items:center; justify-content:center; margin:0 auto 16px;}
+  .empty-block h3{font-size:16px; font-weight:700; color:var(--ink); margin:0 0 6px;}
+  .empty-block p{font-size:13.5px; margin:0 0 18px; max-width:380px; margin-left:auto; margin-right:auto;}
+
+  .btn{
+    font-family:'Inter',sans-serif; font-size:13px; font-weight:600; border-radius:var(--radius-sm); border:1px solid var(--line-strong);
+    background:#fff; color:var(--ink); padding:9px 16px; cursor:pointer; display:inline-flex; align-items:center; gap:7px;
+  }
+  .btn:hover{background:var(--surface-alt);}
+  .btn.primary{background:var(--blue); color:#fff; border-color:var(--blue);}
+  .btn.primary:hover{background:var(--blue-dark);}
+  .btn.danger{color:var(--red); border-color:var(--red-soft); background:var(--red-soft);}
+  .btn.danger:hover{background:#F7D9D7;}
+  .btn.sm{font-size:12px; padding:7px 12px;}
+  .btn:disabled{opacity:0.5; cursor:default;}
+
+  /* protocol list */
+  .protocol-list{display:flex; flex-direction:column; gap:10px;}
+  .protocol-row{
+    background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:15px 18px;
+    display:flex; align-items:center; gap:16px; cursor:pointer; box-shadow:var(--shadow-sm);
+  }
+  .protocol-row:hover{border-color:var(--blue); box-shadow:var(--shadow-md);}
+  .protocol-row .num{
+    font-size:12.5px; font-weight:700; color:var(--blue-dark); background:var(--blue-soft); padding:5px 10px; border-radius:6px; flex-shrink:0;
+  }
+  .protocol-row .ttl{flex:1; font-size:13.8px; font-weight:600; color:var(--ink);}
+  .protocol-row .meta{display:flex; gap:6px; flex-shrink:0;}
+  .flow-chip{font-size:10.5px; font-weight:700; padding:3px 9px; border-radius:20px; text-transform:uppercase; letter-spacing:0.02em;}
+  .flow-chip.livre{background:var(--green-soft); color:var(--green);}
+  .flow-chip.obrig{background:var(--orange-soft); color:var(--orange);}
+  .flow-chip.sem{background:var(--surface-alt); color:var(--ink-faint);}
+  .protocol-row .chev{color:var(--ink-faint); flex-shrink:0;}
+
+  /* home toolbar + table */
+  .home-toolbar{display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:18px;}
+  .home-toolbar select{
+    padding:8px 12px; border:1px solid var(--line-strong); border-radius:var(--radius-sm); background:#fff; font-size:13px;
+    font-family:'Inter',sans-serif; color:var(--ink-dim);
+  }
+  .home-toolbar .spacer{flex:1;}
+  .table-wrap{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow-sm); overflow:hidden;}
+  table.data-table{width:100%; border-collapse:collapse; font-size:13px;}
+  table.data-table thead th{
+    text-align:left; font-size:11px; font-weight:700; letter-spacing:0.04em; text-transform:uppercase; color:var(--ink-faint);
+    padding:12px 16px; border-bottom:1px solid var(--line); background:var(--surface-alt); white-space:nowrap;
+  }
+  table.data-table tbody tr{cursor:pointer; border-bottom:1px solid var(--line-soft);}
+  table.data-table tbody tr:last-child{border-bottom:none;}
+  table.data-table tbody tr:hover{background:var(--blue-soft);}
+  table.data-table td{padding:12px 16px; vertical-align:middle; color:var(--ink); white-space:nowrap;}
+  table.data-table td.ttl-cell{white-space:normal; font-weight:600; min-width:220px;}
+  table.data-table td.num-cell{font-weight:700; color:var(--blue-dark); font-family:'Inter',sans-serif;}
+  table.data-table td.cat-cell{color:var(--ink-dim); font-size:12.5px;}
+  .table-bool{display:inline-block; width:7px; height:7px; border-radius:50%;}
+  .table-bool.yes{background:var(--blue);}
+  .table-bool.no{background:var(--line-strong);}
+  .table-empty-row td{padding:40px 16px; text-align:center; color:var(--ink-faint); font-style:italic; cursor:default;}
+  .table-empty-row:hover{background:none;}
+
+  /* category header */
+  .cat-header{display:flex; align-items:center; gap:16px; margin-bottom:24px; flex-wrap:wrap;}
+  .cat-header .cat-icon{margin-bottom:0;}
+  .cat-header h2{font-size:21px; font-weight:700; margin:0; flex:1;}
+  .cat-header-actions{display:flex; gap:8px;}
+
+  /* protocol detail */
+  .detail-card{background:var(--surface); border:1px solid var(--line); border-radius:14px; box-shadow:var(--shadow-sm); max-width:840px;}
+  .detail-head{padding:26px 30px 22px; border-bottom:1px solid var(--line); display:flex; align-items:flex-start; gap:16px;}
+  .detail-head .num-badge{font-size:14px; font-weight:800; color:#fff; background:var(--blue); padding:7px 13px; border-radius:8px; flex-shrink:0; margin-top:2px;}
+  .detail-head h2{font-size:22px; font-weight:700; margin:0; line-height:1.3; flex:1;}
+  .detail-head-actions{display:flex; gap:8px; flex-shrink:0;}
+  .detail-body{padding:26px 30px 30px;}
+
+  .field-row{display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px;}
+  @media (max-width:560px){.field-row{grid-template-columns:1fr;}}
+  .field{margin-bottom:18px;}
+  .field label{display:block; font-size:12px; font-weight:600; color:var(--ink-dim); margin-bottom:7px;}
+  .field input[type=text], .field input[type=url], .field select, .field textarea{
+    width:100%; padding:10px 13px; border:1px solid var(--line-strong); border-radius:var(--radius-sm); font-size:13.5px;
+    font-family:'Inter',sans-serif; color:var(--ink); background:#fff;
+  }
+  .field textarea{min-height:88px; resize:vertical; line-height:1.6;}
+  .field input:focus, .field select:focus, .field textarea:focus{outline:none; border-color:var(--blue); box-shadow:0 0 0 3px var(--blue-soft);}
+  .toggle-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:18px;}
+  @media (max-width:560px){.toggle-grid{grid-template-columns:repeat(2,1fr);}}
+  .toggle-card{border:1px solid var(--line); border-radius:var(--radius-sm); padding:11px 13px; text-align:center; cursor:pointer; user-select:none; background:var(--surface-alt);}
+  .toggle-card.on{background:var(--blue-soft); border-color:var(--blue);}
+  .toggle-card .k{font-size:10.5px; font-weight:700; color:var(--ink-faint); text-transform:uppercase; letter-spacing:0.04em; display:block; margin-bottom:5px;}
+  .toggle-card .v{font-size:13px; font-weight:700; color:var(--ink-dim);}
+  .toggle-card.on .v{color:var(--blue-dark);}
+  .toggle-card:not(.editing){cursor:default;}
+
+  .meta-strip-view{display:flex; flex-wrap:wrap; gap:10px; margin-bottom:24px;}
+  .meta-tag{font-size:12px; font-weight:600; padding:6px 12px; border-radius:20px; display:inline-flex; align-items:center; gap:6px;}
+  .meta-tag.flowlivre{background:var(--green-soft); color:var(--green);}
+  .meta-tag.flowobrig{background:var(--orange-soft); color:var(--orange);}
+  .meta-tag.flowsem{background:var(--surface-alt); color:var(--ink-faint);}
+  .meta-tag.plain{background:var(--surface-alt); color:var(--ink-dim);}
+  .meta-tag .dot{width:6px; height:6px; border-radius:50%;}
+  .meta-tag .dot.on{background:var(--blue);}
+  .meta-tag .dot.off{background:var(--ink-faint); opacity:0.4;}
+
+  .section{margin:24px 0;}
+  .section h3{font-size:11.5px; font-weight:700; letter-spacing:0.05em; text-transform:uppercase; color:var(--ink-faint); margin:0 0 10px;}
+  .section p{font-size:14px; line-height:1.7; margin:0; color:var(--ink);}
+  .tag-input-wrap{display:flex; flex-wrap:wrap; gap:7px; padding:9px; border:1px solid var(--line-strong); border-radius:var(--radius-sm); background:#fff;}
+  .tag-chip{background:var(--surface-alt); border-radius:14px; padding:5px 10px 5px 12px; font-size:12.5px; display:flex; align-items:center; gap:7px; color:var(--ink-dim);}
+  .tag-chip button{border:none; background:none; cursor:pointer; color:var(--ink-faint); font-size:14px; line-height:1; padding:0;}
+  .tag-input-wrap input{border:none; flex:1; min-width:140px; padding:5px 4px; font-size:13px; font-family:'Inter',sans-serif;}
+  .tag-input-wrap input:focus{outline:none;}
+  .pillbox{display:flex; flex-wrap:wrap; gap:8px;}
+  .pillbox span{background:var(--surface-alt); border-radius:14px; padding:5px 12px; font-size:12.5px; color:var(--ink-dim);}
+  .warn-box{background:var(--red-soft); border-left:3px solid var(--red); padding:11px 14px; border-radius:0 8px 8px 0; font-size:13.5px; line-height:1.65; color:#9B3A33;}
+  .note-box{background:var(--teal-soft); border-left:3px solid var(--teal); padding:11px 14px; border-radius:0 8px 8px 0; font-size:13.5px; line-height:1.65; color:#0E6E7A;}
+
+  .attach-grid{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
+  @media (max-width:560px){.attach-grid{grid-template-columns:1fr;}}
+  .attach-card{border:1px solid var(--line); border-radius:var(--radius-sm); padding:16px; background:var(--surface-alt);}
+  .attach-card .lbl{font-size:11.5px; font-weight:700; color:var(--ink-faint); text-transform:uppercase; letter-spacing:0.04em; margin-bottom:11px; display:block;}
+  .attach-file{display:flex; align-items:center; gap:10px; padding:10px; background:#fff; border:1px solid var(--line); border-radius:var(--radius-sm); margin-bottom:9px;}
+  .attach-file svg{flex-shrink:0; color:var(--blue);}
+  .attach-file .fname{font-size:12.8px; font-weight:600; word-break:break-all; flex:1; color:var(--ink);}
+  .attach-file .fname small{display:block; font-weight:400; color:var(--ink-faint); font-size:11px; margin-top:2px;}
+  .none-txt{font-size:13px; color:var(--ink-faint); font-style:italic;}
+  input[type=file]{font-size:12px; color:var(--ink-dim);}
+  input[type=file]::file-selector-button{font-family:'Inter',sans-serif; font-size:12px; padding:7px 11px; border-radius:6px; border:1px solid var(--line-strong); background:#fff; color:var(--ink); margin-right:9px; cursor:pointer;}
+
+  .save-bar{display:flex; justify-content:flex-end; gap:10px; margin-top:26px; padding-top:20px; border-top:1px solid var(--line);}
+  .save-toast{
+    position:fixed; bottom:26px; right:26px; background:var(--ink); color:#fff; padding:11px 18px; border-radius:9px;
+    font-size:13px; font-weight:500; box-shadow:var(--shadow-lg); opacity:0; transform:translateY(8px); transition:all .25s ease;
+    pointer-events:none; z-index:100;
+  }
+  .save-toast.show{opacity:1; transform:translateY(0);}
+
+  .color-swatches{display:flex; gap:8px; flex-wrap:wrap;}
+  .swatch{width:26px; height:26px; border-radius:50%; cursor:pointer; border:2px solid transparent;}
+  .swatch.active{border-color:var(--ink);}
+
+  .modal-overlay{position:fixed; inset:0; background:rgba(20,25,35,0.45); display:flex; align-items:center; justify-content:center; z-index:200; padding:20px;}
+  .modal{background:#fff; border-radius:14px; padding:26px; max-width:420px; width:100%; box-shadow:var(--shadow-lg);}
+  .modal h3{margin:0 0 16px; font-size:16px; font-weight:700;}
+  .modal .actions{display:flex; justify-content:flex-end; gap:9px; margin-top:20px;}
+
+  .scrollbar-thin::-webkit-scrollbar{width:6px;}
+  .scrollbar-thin::-webkit-scrollbar-thumb{background:var(--line-strong); border-radius:3px;}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <nav class="sidebar scrollbar-thin" id="sidebar">
+    <div class="sidebar-head">
+      <div class="logo-mark">CM</div>
+      <div>
+        <h1>Configurações do Sistema</h1>
+        <p>Gestão Municipal</p>
+      </div>
+    </div>
+    <div class="nav-scroll" id="navScroll"></div>
+    <div class="sidebar-foot">
+      <div class="mode-toggle">
+        <span class="lbl" id="modeLbl">Modo de edição</span>
+        <button class="switch" id="modeSwitch"></button>
+      </div>
+      <div class="edit-pill" id="editPill" style="display:none;"><span class="dot"></span> Edição ativa — você pode criar e alterar configurações</div>
+      <button class="add-cat-btn" id="changePwdBtn" style="display:none; margin:12px 0 0; width:100%;">Alterar senha</button>
+    </div>
+  </nav>
+
+  <main class="main" id="main">
+    <div class="topbar">
+      <div class="crumb" id="crumb">Início</div>
+      <div class="search-wrap">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="search" id="topSearch" placeholder="Buscar configuração..." />
+      </div>
+    </div>
+    <div class="content" id="content"></div>
+  </main>
+</div>
+
+<div class="save-toast" id="saveToast">Salvo</div>
+<div id="modalRoot"></div>
+
+<script>
+/* ===================== ARMAZENAMENTO COMPARTILHADO (Supabase via API) ===================== */
+/* Substitui a API window.storage (exclusiva do ambiente Claude) por chamadas
+   à função serverless /api/kv, que por sua vez lê e grava no Supabase.
+   Os dados ficam centralizados: qualquer pessoa que acessar o site vê os
+   mesmos dados. A chave do Supabase nunca chega ao navegador. */
+(function(){
+  async function apiGet(key){
+    const res = await fetch('/api/kv?key=' + encodeURIComponent(key));
+    if(res.status === 404){ throw new Error('Chave não encontrada: ' + key); }
+    if(!res.ok){ throw new Error('Erro ao ler do servidor'); }
+    return res.json();
+  }
+  window.storage = {
+    async get(key){
+      const data = await apiGet(key);
+      return {key: data.key, value: data.value, shared:true};
+    },
+    async set(key, value){
+      const res = await fetch('/api/kv', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({key, value})
+      });
+      if(!res.ok) throw new Error('Erro ao salvar no servidor');
+      const data = await res.json();
+      return {key: data.key, value: data.value, shared:true};
+    },
+    async delete(key){
+      const res = await fetch('/api/kv?key=' + encodeURIComponent(key), {method:'DELETE'});
+      if(!res.ok) throw new Error('Erro ao excluir no servidor');
+      return {key, deleted:true, shared:true};
+    },
+    async list(prefix){
+      const res = await fetch('/api/kv?prefix=' + encodeURIComponent(prefix||''));
+      if(!res.ok) throw new Error('Erro ao listar no servidor');
+      const data = await res.json();
+      return {keys: data.keys, prefix, shared:true};
+    }
+  };
+})();
+
+/* ===================== ESTADO ===================== */
+const COLORS = [
+  {name:'blue', icon:'var(--blue)', soft:'var(--blue-soft)'},
+  {name:'green', icon:'var(--green)', soft:'var(--green-soft)'},
+  {name:'orange', icon:'var(--orange)', soft:'var(--orange-soft)'},
+  {name:'purple', icon:'var(--purple)', soft:'var(--purple-soft)'},
+  {name:'red', icon:'var(--red)', soft:'var(--red-soft)'},
+  {name:'teal', icon:'var(--teal)', soft:'var(--teal-soft)'},
+  {name:'pink', icon:'var(--pink)', soft:'var(--pink-soft)'},
+];
+
+let categorias = [];   // {id, nome, colorIdx}
+let protocolos = [];   // {id, numero, titulo, categoriaId, unidade, fluxo, tramitacao, credor, arquivos, valor, quando, exemplos[], naoUtilizar, atencao, observacao, comoCadastrar, link, notas}
+let attachments = {};  // protocoloId -> {anexoModelo, oficioModelo}
+
+let editMode = false;
+let senhaHash = null; // hash da senha de edição (null = nenhuma senha definida ainda)
+let expandedCategories = new Set();
+let view = 'home';          // home | category | protocol | newProtocol
+let activeCategoriaId = null;
+let activeProtocoloId = null;
+let searchTerm = '';
+let draftExemplos = [];     // working tag list while editing a protocol
+
+const $ = (sel,el=document)=>el.querySelector(sel);
+const $$ = (sel,el=document)=>Array.from(el.querySelectorAll(sel));
+const uid = ()=> Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+
+function simpleHash(str){
+  let h1 = 0xdeadbeef, h2 = 0x41c6ce57;
+  for(let i=0;i<str.length;i++){
+    const ch = str.charCodeAt(i);
+    h1 = Math.imul(h1 ^ ch, 2654435761);
+    h2 = Math.imul(h2 ^ ch, 1597334677);
+  }
+  h1 = Math.imul(h1 ^ (h1>>>16), 2246822507) ^ Math.imul(h2 ^ (h2>>>13), 3266489909);
+  h2 = Math.imul(h2 ^ (h2>>>16), 2246822507) ^ Math.imul(h1 ^ (h1>>>13), 3266489909);
+  return (4294967296*(2097151 & h2) + (h1>>>0)).toString(36);
+}
+
+function escapeHtml(s){
+  if(s==null) return "";
+  return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+/* ===================== STORAGE ===================== */
+async function loadAll(){
+  try{
+    const s = await window.storage.get('app:senha', false);
+    senhaHash = s && s.value ? s.value : null;
+  }catch(e){ senhaHash = null; }
+  try{
+    const c = await window.storage.get('app:categorias', false);
+    categorias = c && c.value ? JSON.parse(c.value) : [];
+  }catch(e){ categorias = []; }
+  try{
+    const p = await window.storage.get('app:protocolos', false);
+    protocolos = p && p.value ? JSON.parse(p.value) : [];
+  }catch(e){ protocolos = []; }
+  try{
+    const list = await window.storage.list('attach:', false);
+    if(list && list.keys){
+      for(const k of list.keys){
+        try{
+          const res = await window.storage.get(k, false);
+          if(res && res.value) attachments[k.replace('attach:','')] = JSON.parse(res.value);
+        }catch(e){}
+      }
+    }
+  }catch(e){}
+}
+
+async function saveCategorias(){
+  try{ await window.storage.set('app:categorias', JSON.stringify(categorias), false); return true; }
+  catch(e){ console.error(e); return false; }
+}
+async function saveProtocolos(){
+  try{ await window.storage.set('app:protocolos', JSON.stringify(protocolos), false); return true; }
+  catch(e){ console.error(e); return false; }
+}
+async function saveAttachment(protocoloId, data){
+  attachments[protocoloId] = data;
+  try{ await window.storage.set('attach:'+protocoloId, JSON.stringify(data), false); return true; }
+  catch(e){ console.error(e); return false; }
+}
+
+async function saveSenha(hash){
+  senhaHash = hash;
+  try{ await window.storage.set('app:senha', hash, false); return true; }
+  catch(e){ console.error(e); return false; }
+}
+
+function showToast(msg){
+  const t = $('#saveToast');
+  t.textContent = msg || 'Salvo';
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 1800);
+}
+
+/* ===================== MODAL HELPERS ===================== */
+function closeModal(){ $('#modalRoot').innerHTML = ''; }
+
+function openPromptModal({title, label, value='', placeholder='', confirmText='Salvar', onConfirm}){
+  const root = $('#modalRoot');
+  root.innerHTML = `
+    <div class="modal-overlay" id="modalOverlay">
+      <div class="modal">
+        <h3>${escapeHtml(title)}</h3>
+        <div class="field" style="margin-bottom:0;">
+          <label>${escapeHtml(label)}</label>
+          <input type="text" id="modalInput" value="${escapeHtml(value)}" placeholder="${escapeHtml(placeholder)}" />
+        </div>
+        <div class="actions">
+          <button class="btn" id="modalCancel">Cancelar</button>
+          <button class="btn primary" id="modalConfirm">${escapeHtml(confirmText)}</button>
+        </div>
+      </div>
+    </div>`;
+  const input = $('#modalInput');
+  input.focus(); input.select();
+  $('#modalCancel').onclick = closeModal;
+  $('#modalOverlay').addEventListener('click', (e)=>{ if(e.target.id==='modalOverlay') closeModal(); });
+  $('#modalConfirm').onclick = ()=>{ const v = input.value.trim(); if(!v) return; closeModal(); onConfirm(v); };
+  input.addEventListener('keydown', (e)=>{ if(e.key==='Enter') $('#modalConfirm').click(); });
+}
+
+function openConfirmModal({title, message, confirmText='Excluir', onConfirm}){
+  const root = $('#modalRoot');
+  root.innerHTML = `
+    <div class="modal-overlay" id="modalOverlay">
+      <div class="modal">
+        <h3>${escapeHtml(title)}</h3>
+        <p style="font-size:13.5px; color:var(--ink-dim); line-height:1.6; margin:0 0 4px;">${escapeHtml(message)}</p>
+        <div class="actions">
+          <button class="btn" id="modalCancel">Cancelar</button>
+          <button class="btn danger" id="modalConfirm">${escapeHtml(confirmText)}</button>
+        </div>
+      </div>
+    </div>`;
+  $('#modalCancel').onclick = closeModal;
+  $('#modalOverlay').addEventListener('click', (e)=>{ if(e.target.id==='modalOverlay') closeModal(); });
+  $('#modalConfirm').onclick = ()=>{ closeModal(); onConfirm(); };
+}
+
+function openColorModal(category){
+  const root = $('#modalRoot');
+  const swatches = COLORS.map((c,i)=>`<div class="swatch ${category.colorIdx===i?'active':''}" data-idx="${i}" style="background:${c.icon};"></div>`).join('');
+  root.innerHTML = `
+    <div class="modal-overlay" id="modalOverlay">
+      <div class="modal">
+        <h3>Cor da categoria</h3>
+        <div class="color-swatches">${swatches}</div>
+        <div class="actions"><button class="btn" id="modalCancel">Fechar</button></div>
+      </div>
+    </div>`;
+  $('#modalCancel').onclick = closeModal;
+  $('#modalOverlay').addEventListener('click', (e)=>{ if(e.target.id==='modalOverlay') closeModal(); });
+}
+
+/* ---------- Senha de edição ---------- */
+function openSetPasswordModal(onSuccess){
+  const root = $('#modalRoot');
+  root.innerHTML = `
+    <div class="modal-overlay" id="modalOverlay">
+      <div class="modal">
+        <h3>Criar senha de edição</h3>
+        <p style="font-size:13px; color:var(--ink-dim); line-height:1.6; margin:0 0 16px;">Nenhuma senha foi definida ainda. Crie uma senha para proteger o modo de edição. Você poderá alterá-la depois.</p>
+        <div class="field"><label>Nova senha</label><input type="password" id="pwd1" placeholder="Digite uma senha" /></div>
+        <div class="field" style="margin-bottom:0;"><label>Confirmar senha</label><input type="password" id="pwd2" placeholder="Repita a senha" /></div>
+        <div class="actions">
+          <button class="btn" id="modalCancel">Cancelar</button>
+          <button class="btn primary" id="modalConfirm">Criar senha</button>
+        </div>
+      </div>
+    </div>`;
+  $('#pwd1').focus();
+  $('#modalCancel').onclick = closeModal;
+  $('#modalOverlay').addEventListener('click', (e)=>{ if(e.target.id==='modalOverlay') closeModal(); });
+  function attempt(){
+    const p1 = $('#pwd1').value, p2 = $('#pwd2').value;
+    if(!p1){ return; }
+    if(p1 !== p2){ alert('As senhas não coincidem.'); return; }
+    saveSenha(simpleHash(p1)).then(()=>{ closeModal(); onSuccess(); });
+  }
+  $('#modalConfirm').onclick = attempt;
+  $('#pwd2').addEventListener('keydown', (e)=>{ if(e.key==='Enter') attempt(); });
+}
+
+function openCheckPasswordModal(onSuccess){
+  const root = $('#modalRoot');
+  root.innerHTML = `
+    <div class="modal-overlay" id="modalOverlay">
+      <div class="modal">
+        <h3>Entrar no modo de edição</h3>
+        <div class="field" style="margin-bottom:0;"><label>Senha</label><input type="password" id="pwdCheck" placeholder="Digite a senha" /></div>
+        <p id="pwdError" style="font-size:12.5px; color:var(--red); margin:10px 0 0; display:none;">Senha incorreta. Tente novamente.</p>
+        <div class="actions">
+          <button class="btn" id="modalCancel">Cancelar</button>
+          <button class="btn primary" id="modalConfirm">Entrar</button>
+        </div>
+      </div>
+    </div>`;
+  $('#pwdCheck').focus();
+  $('#modalCancel').onclick = closeModal;
+  $('#modalOverlay').addEventListener('click', (e)=>{ if(e.target.id==='modalOverlay') closeModal(); });
+  function attempt(){
+    const v = $('#pwdCheck').value;
+    if(simpleHash(v) === senhaHash){ closeModal(); onSuccess(); }
+    else { $('#pwdError').style.display='block'; $('#pwdCheck').value=''; $('#pwdCheck').focus(); }
+  }
+  $('#modalConfirm').onclick = attempt;
+  $('#pwdCheck').addEventListener('keydown', (e)=>{ if(e.key==='Enter') attempt(); });
+}
+
+function openChangePasswordModal(){
+  const root = $('#modalRoot');
+  root.innerHTML = `
+    <div class="modal-overlay" id="modalOverlay">
+      <div class="modal">
+        <h3>Alterar senha de edição</h3>
+        <div class="field"><label>Senha atual</label><input type="password" id="pwdOld" placeholder="Senha atual" /></div>
+        <div class="field"><label>Nova senha</label><input type="password" id="pwdNew1" placeholder="Nova senha" /></div>
+        <div class="field" style="margin-bottom:0;"><label>Confirmar nova senha</label><input type="password" id="pwdNew2" placeholder="Repita a nova senha" /></div>
+        <p id="pwdChangeError" style="font-size:12.5px; color:var(--red); margin:10px 0 0; display:none;"></p>
+        <div class="actions">
+          <button class="btn" id="modalCancel">Cancelar</button>
+          <button class="btn primary" id="modalConfirm">Salvar nova senha</button>
+        </div>
+      </div>
+    </div>`;
+  $('#pwdOld').focus();
+  $('#modalCancel').onclick = closeModal;
+  $('#modalOverlay').addEventListener('click', (e)=>{ if(e.target.id==='modalOverlay') closeModal(); });
+  function attempt(){
+    const old = $('#pwdOld').value, n1 = $('#pwdNew1').value, n2 = $('#pwdNew2').value;
+    const err = $('#pwdChangeError');
+    if(simpleHash(old) !== senhaHash){ err.textContent='Senha atual incorreta.'; err.style.display='block'; return; }
+    if(!n1){ err.textContent='Digite a nova senha.'; err.style.display='block'; return; }
+    if(n1 !== n2){ err.textContent='As novas senhas não coincidem.'; err.style.display='block'; return; }
+    saveSenha(simpleHash(n1)).then(()=>{ closeModal(); showToast('Senha alterada'); });
+  }
+  $('#modalConfirm').onclick = attempt;
+  $('#pwdNew2').addEventListener('keydown', (e)=>{ if(e.key==='Enter') attempt(); });
+}
+
+/* ===================== CSV ===================== */
+const CSV_COLUMNS = ['numero','titulo','categoria','unidade','fluxo','tramitacao','credor','arquivos','valor','quando','exemplos','naoUtilizar','atencao','observacao','comoCadastrar','link','notas'];
+
+function detectDelimiter(text){
+  const firstLine = text.split(/\r?\n/)[0] || '';
+  const commas = (firstLine.match(/,/g)||[]).length;
+  const semis = (firstLine.match(/;/g)||[]).length;
+  return semis > commas ? ';' : ',';
+}
+
+function parseCsv(text){
+  const delim = detectDelimiter(text);
+  const rows = [];
+  let row = [], field = '', inQuotes = false;
+  // normalize line endings
+  text = text.replace(/\r\n/g,'\n').replace(/\r/g,'\n');
+  for(let i=0;i<text.length;i++){
+    const ch = text[i];
+    if(inQuotes){
+      if(ch === '"'){
+        if(text[i+1] === '"'){ field += '"'; i++; }
+        else inQuotes = false;
+      } else field += ch;
+    } else {
+      if(ch === '"') inQuotes = true;
+      else if(ch === delim){ row.push(field); field=''; }
+      else if(ch === '\n'){ row.push(field); rows.push(row); row=[]; field=''; }
+      else field += ch;
+    }
+  }
+  if(field.length>0 || row.length>0){ row.push(field); rows.push(row); }
+  return rows.filter(r => r.some(c=>c.trim()!==''));
+}
+
+function parseBool(v){
+  if(v==null) return false;
+  const t = String(v).trim().toLowerCase();
+  return t==='sim' || t==='s' || t==='1' || t==='true' || t==='x' || t==='yes';
+}
+
+function parseFluxo(v){
+  const t = String(v||'').trim().toLowerCase();
+  if(t.includes('obrigat')) return 'Fluxo Obrigatório';
+  if(t.includes('sem fluxo') || t==='sem') return 'Sem Fluxo';
+  if(t.includes('livre')) return 'Fluxo Livre';
+  return 'Fluxo Livre';
+}
+
+async function importCsv(text){
+  let rows;
+  try{ rows = parseCsv(text); }
+  catch(e){ alert('Não foi possível ler o arquivo CSV.'); return; }
+  if(rows.length < 2){ alert('O arquivo CSV está vazio ou não tem dados além do cabeçalho.'); return; }
+
+  const header = rows[0].map(h=>h.trim().toLowerCase());
+  const idx = {};
+  CSV_COLUMNS.forEach(col=>{ idx[col] = header.indexOf(col.toLowerCase()); });
+  if(idx.numero===-1 || idx.titulo===-1){
+    alert('O CSV precisa ter ao menos as colunas "numero" e "titulo".');
+    return;
+  }
+
+  let created = 0, updated = 0;
+  for(let r=1; r<rows.length; r++){
+    const cols = rows[r];
+    const get = (key) => idx[key]!==-1 && idx[key]!==undefined ? (cols[idx[key]]||'').trim() : '';
+
+    const numero = get('numero');
+    const titulo = get('titulo');
+    if(!numero || !titulo) continue;
+
+    let catNome = get('categoria') || 'Sem categoria';
+    let cat = categorias.find(c=>c.nome.toLowerCase()===catNome.toLowerCase());
+    if(!cat){
+      cat = {id:uid(), nome:catNome, colorIdx: categorias.length % COLORS.length};
+      categorias.push(cat);
+    }
+
+    const exemplosRaw = get('exemplos');
+    const exemplos = exemplosRaw ? exemplosRaw.split('|').map(s=>s.trim()).filter(Boolean) : [];
+
+    const data = {
+      numero, titulo, categoriaId: cat.id,
+      unidade: get('unidade'), fluxo: parseFluxo(get('fluxo')),
+      tramitacao: parseBool(get('tramitacao')), credor: parseBool(get('credor')),
+      arquivos: parseBool(get('arquivos')), valor: parseBool(get('valor')),
+      quando: get('quando'), exemplos,
+      naoUtilizar: get('naoUtilizar'), atencao: get('atencao'),
+      observacao: get('observacao'), comoCadastrar: get('comoCadastrar'),
+      link: get('link'), notas: get('notas'),
+    };
+
+    const existing = protocolos.find(p=>p.numero.toLowerCase()===numero.toLowerCase());
+    if(existing){
+      Object.assign(existing, data);
+      updated++;
+    } else {
+      protocolos.push(Object.assign({id:uid()}, data));
+      created++;
+    }
+  }
+
+  await saveCategorias();
+  await saveProtocolos();
+  showToast(`Importação concluída: ${created} criada(s), ${updated} atualizada(s)`);
+  view = 'home'; activeCategoriaId = null; activeProtocoloId = null;
+  renderAll();
+}
+
+function csvEscape(v){
+  v = (v==null ? '' : String(v));
+  if(/[",;\n]/.test(v)) return '"' + v.replace(/"/g,'""') + '"';
+  return v;
+}
+
+function downloadCsvTemplate(){
+  const header = CSV_COLUMNS.join(',');
+  const sample1 = [
+    '001','Serviço Público','Atendimento ao Cidadão','Atendimento Geral','Fluxo Livre','Sim','Não','Sim','Não',
+    'Sempre que a demanda for apresentada por um cidadão, empresa ou entidade externa.',
+    'Requerimento|Entrega de documentos|Correspondência externa',
+    'Demandas internas entre setores.','', '', 'Confira o setor de destino antes de protocolar.', '', ''
+  ].map(csvEscape).join(',');
+  const sample2 = [
+    '002','Procedimento Administrativo de Usuário Interno','Atendimento Interno','Setor demandante','Fluxo Livre','Sim','Não','Sim','Não',
+    'Para comunicações e solicitações administrativas internas entre setores da prefeitura.',
+    'Memorando|Solicitação de informações|Encaminhamento de documentos',
+    '', '', '', '', '', ''
+  ].map(csvEscape).join(',');
+  const content = [header, sample1, sample2].join('\n');
+  const blob = new Blob([content], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'modelo_configuracoes.csv';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+/* ===================== SIDEBAR ===================== */
+function categoryCount(catId){ return protocolos.filter(p=>p.categoriaId===catId).length; }
+
+function homeIcon(){return `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11.5 12 4l9 7.5"/><path d="M5 10v10h14V10"/></svg>`;}
+function listIcon(){return `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>`;}
+function folderIcon(){return `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 7a2 2 0 0 1 2-2h4l2 2.5h8a2 2 0 0 1 2 2V17a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>`;}
+function plusIcon(){return `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>`;}
+function chevIcon(){return `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>`;}
+function fileIcon(){return `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>`;}
+function trashIcon(){return `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v4M14 11v4"/></svg>`;}
+function editIcon(){return `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>`;}
+function paletteIcon(){return `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="7.5" cy="10.5" r="1"/><circle cx="12" cy="7.5" r="1"/><circle cx="16.5" cy="10.5" r="1"/></svg>`;}
+
+function renderSidebar(){
+  const nav = $('#navScroll');
+  let html = `<div class="nav-section-label">Visão geral</div>`;
+  html += `<button class="nav-item ${view==='home'?'active':''}" data-action="home">${homeIcon()} Início <span class="count">${protocolos.length}</span></button>`;
+
+  html += `<div class="nav-section-label">Categorias</div>`;
+  if(categorias.length===0){
+    html += `<div style="padding:4px 22px 10px; font-size:12px; color:var(--ink-faint);">Nenhuma categoria ainda.</div>`;
+  } else {
+    categorias.forEach(cat=>{
+      const c = COLORS[cat.colorIdx % COLORS.length];
+      const isExpanded = expandedCategories.has(cat.id);
+      const children = protocolos.filter(p=>p.categoriaId===cat.id).sort((a,b)=>a.numero.localeCompare(b.numero));
+      html += `<div class="cat-item-row">
+        <button class="cat-item ${view==='category' && activeCategoriaId===cat.id?'active':''}" data-action="openCategory" data-id="${cat.id}">
+          <span class="cat-dot" style="background:${c.icon};"></span><span class="name">${escapeHtml(cat.nome)}</span><span class="count">${categoryCount(cat.id)}</span>
+        </button>
+        <button class="cat-chevron ${isExpanded?'open':''}" data-action="toggleExpand" data-id="${cat.id}" title="Mostrar configurações">${chevIcon()}</button>
+      </div>`;
+      if(isExpanded){
+        if(children.length===0){
+          html += `<div class="cat-children-empty">Nenhuma configuração ainda.</div>`;
+        } else {
+          html += `<div class="cat-children">` + children.map(p=>`
+            <button class="cat-child-item ${view==='protocol' && activeProtocoloId===p.id?'active':''}" data-action="openProtocoloFromSidebar" data-id="${p.id}">
+              <span class="num">${escapeHtml(p.numero)}</span><span class="ttl">${escapeHtml(p.titulo)}</span>
+            </button>`).join('') + `</div>`;
+        }
+      }
+    });
+  }
+  if(editMode){
+    html += `<button class="add-cat-btn" data-action="addCategory">${plusIcon()} Nova categoria</button>`;
+    html += `<div class="nav-section-label" style="margin-top:18px;">Importação</div>
+      <button class="add-cat-btn" data-action="importCsv">${plusIcon()} Importar CSV</button>
+      <button class="add-cat-btn" data-action="downloadCsvTemplate" style="margin-top:8px;">Baixar modelo CSV</button>
+      <input type="file" id="csvFileInput" accept=".csv" style="display:none;" />`;
+  }
+  nav.innerHTML = html;
+
+  $$('[data-action]', nav).forEach(el=>{
+    el.addEventListener('click', ()=>{
+      const action = el.dataset.action;
+      if(action==='home'){ view='home'; activeCategoriaId=null; activeProtocoloId=null; renderAll(); }
+      if(action==='openCategory'){ view='category'; activeCategoriaId=el.dataset.id; activeProtocoloId=null; renderAll(); }
+      if(action==='openProtocoloFromSidebar'){
+        const p = protocolos.find(x=>x.id===el.dataset.id);
+        view='protocol'; activeCategoriaId = p ? p.categoriaId : null; activeProtocoloId=el.dataset.id; renderAll();
+      }
+      if(action==='toggleExpand'){
+        const id = el.dataset.id;
+        if(expandedCategories.has(id)) expandedCategories.delete(id); else expandedCategories.add(id);
+        renderSidebar();
+      }
+      if(action==='importCsv'){ $('#csvFileInput').click(); }
+      if(action==='downloadCsvTemplate'){ downloadCsvTemplate(); }
+      if(action==='addCategory'){
+        openPromptModal({
+          title:'Nova categoria', label:'Nome da categoria', placeholder:'Ex: Pagamentos e repasses',
+          onConfirm: async (nome)=>{
+            const cat = {id:uid(), nome, colorIdx: categorias.length % COLORS.length};
+            categorias.push(cat);
+            await saveCategorias();
+            view='category'; activeCategoriaId=cat.id;
+            showToast('Categoria criada');
+            renderAll();
+          }
+        });
+      }
+    });
+  });
+
+  const csvInput = $('#csvFileInput', nav);
+  if(csvInput){
+    csvInput.addEventListener('change', async (e)=>{
+      const f = e.target.files[0];
+      if(!f) return;
+      const text = await f.text();
+      await importCsv(text);
+      csvInput.value = '';
+    });
+  }
+}
+
+/* ===================== HOME ===================== */
+function matchesSearch(p, term){
+  if(!term) return true;
+  const t = term.toLowerCase();
+  return p.numero.toLowerCase().includes(t) || p.titulo.toLowerCase().includes(t) ||
+    (p.quando||'').toLowerCase().includes(t) || (p.notas||'').toLowerCase().includes(t) ||
+    (p.exemplos||[]).some(x=>x.toLowerCase().includes(t));
+}
+
+let homeCategoryFilter = '';
+
+function renderHome(){
+  const term = searchTerm.trim();
+  let html = `
+    <div class="hero">
+      <div class="eyebrow">Sistema de gestão municipal</div>
+      <h2>Configurações do Sistema</h2>
+      <p>Consulte finalidade, fluxo e modelos de cada configuração do sistema.</p>
+      <div class="hero-search">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="search" id="heroSearch" placeholder="Buscar por número, título ou palavra-chave..." value="${escapeHtml(searchTerm)}" />
+      </div>
+    </div>`;
+
+  const catOptions = `<option value="">Todas as categorias</option>` + categorias.map(c=>`<option value="${c.id}" ${homeCategoryFilter===c.id?'selected':''}>${escapeHtml(c.nome)}</option>`).join('');
+
+  html += `<div class="home-toolbar">
+    <select id="catFilter">${catOptions}</select>
+    <span class="spacer"></span>
+    ${editMode?`<button class="btn sm" data-action="addCategoryHero">${plusIcon()} Nova categoria</button>
+    <button class="btn sm primary" data-action="newProtocoloHome">${plusIcon()} Nova configuração</button>`:''}
+  </div>`;
+
+  let list = protocolos.slice();
+  if(term) list = list.filter(p=>matchesSearch(p,term));
+  if(homeCategoryFilter) list = list.filter(p=>p.categoriaId===homeCategoryFilter);
+  list.sort((a,b)=>a.numero.localeCompare(b.numero, undefined, {numeric:true}));
+
+  if(categorias.length===0 && protocolos.length===0){
+    html += `<div class="empty-block">
+      <div class="ico">${folderIcon()}</div>
+      <h3>Nenhuma configuração cadastrada</h3>
+      <p>Ative o modo de edição na barra lateral e crie as categorias e configurações do sistema, ou importe tudo de uma vez via CSV.</p>
+      ${editMode?`<button class="btn primary" data-action="addCategoryHero">${plusIcon()} Criar primeira categoria</button>`:''}
+    </div>`;
+  } else {
+    html += `<div class="table-wrap"><table class="data-table">
+      <thead><tr>
+        <th>Número</th><th>Título</th><th>Categoria</th><th>Fluxo</th><th>Tram.</th><th>Credor</th><th>Arquivos</th><th>Valor</th>
+      </tr></thead>
+      <tbody>`;
+    if(list.length===0){
+      html += `<tr class="table-empty-row"><td colspan="8">Nenhuma configuração encontrada.</td></tr>`;
+    } else {
+      list.forEach(p=>{
+        const cat = categorias.find(c=>c.id===p.categoriaId);
+        const flowClass = p.fluxo==='Fluxo Livre' ? 'livre' : (p.fluxo==='Sem Fluxo' ? 'sem' : 'obrig');
+        html += `<tr data-action="openProtocolo" data-id="${p.id}">
+          <td class="num-cell">${escapeHtml(p.numero)}</td>
+          <td class="ttl-cell">${escapeHtml(p.titulo)}</td>
+          <td class="cat-cell">${cat?escapeHtml(cat.nome):'—'}</td>
+          <td><span class="flow-chip ${flowClass}">${escapeHtml(p.fluxo)}</span></td>
+          <td><span class="table-bool ${p.tramitacao?'yes':'no'}"></span></td>
+          <td><span class="table-bool ${p.credor?'yes':'no'}"></span></td>
+          <td><span class="table-bool ${p.arquivos?'yes':'no'}"></span></td>
+          <td><span class="table-bool ${p.valor?'yes':'no'}"></span></td>
+        </tr>`;
+      });
+    }
+    html += `</tbody></table></div>`;
+  }
+
+  $('#content').innerHTML = html;
+  bindHomeEvents();
+}
+
+function bindHomeEvents(){
+  const hs = $('#heroSearch');
+  if(hs){
+    hs.addEventListener('input', ()=>{ searchTerm = hs.value; renderContentOnly(); });
+    hs.focus(); hs.setSelectionRange(hs.value.length, hs.value.length);
+  }
+  const catFilter = $('#catFilter');
+  if(catFilter){
+    catFilter.addEventListener('change', ()=>{ homeCategoryFilter = catFilter.value; renderContentOnly(); });
+  }
+  $$('tr[data-action=openProtocolo]', $('#content')).forEach(el=>{
+    el.addEventListener('click', ()=>{
+      const p = protocolos.find(x=>x.id===el.dataset.id);
+      view='protocol'; activeCategoriaId = p ? p.categoriaId : null; activeProtocoloId=el.dataset.id; renderAll();
+    });
+  });
+  const addCatBtn = $('[data-action=addCategoryHero]', $('#content'));
+  if(addCatBtn){
+    addCatBtn.addEventListener('click', ()=>{
+      openPromptModal({
+        title:'Nova categoria', label:'Nome da categoria', placeholder:'Ex: Pagamentos e repasses',
+        onConfirm: async (nome)=>{
+          const cat = {id:uid(), nome, colorIdx: categorias.length % COLORS.length};
+          categorias.push(cat);
+          await saveCategorias();
+          view='category'; activeCategoriaId=cat.id;
+          showToast('Categoria criada');
+          renderAll();
+        }
+      });
+    });
+  }
+  const newProtoHomeBtn = $('[data-action=newProtocoloHome]', $('#content'));
+  if(newProtoHomeBtn){
+    newProtoHomeBtn.addEventListener('click', ()=>{
+      if(categorias.length===0){ alert('Crie uma categoria antes de cadastrar uma configuração.'); return; }
+      activeCategoriaId = homeCategoryFilter || categorias[0].id;
+      view='newProtocol';
+      renderAll();
+    });
+  }
+}
+
+function protocolRowHtml(p){
+  const cat = categorias.find(c=>c.id===p.categoriaId);
+  const flowClass = p.fluxo==='Fluxo Livre' ? 'livre' : (p.fluxo==='Sem Fluxo' ? 'sem' : 'obrig');
+  return `<div class="protocol-row" data-action="openProtocolo" data-id="${p.id}">
+    <span class="num">${escapeHtml(p.numero)}</span>
+    <span class="ttl">${escapeHtml(p.titulo)}${cat?` <span style="color:var(--ink-faint); font-weight:500;">· ${escapeHtml(cat.nome)}</span>`:''}</span>
+    <span class="meta"><span class="flow-chip ${flowClass}">${escapeHtml(p.fluxo)}</span></span>
+    <span class="chev">${chevIcon()}</span>
+  </div>`;
+}
+
+/* ===================== CATEGORY VIEW ===================== */
+function renderCategoryView(){
+  const cat = categorias.find(c=>c.id===activeCategoriaId);
+  if(!cat){ view='home'; renderAll(); return; }
+  const c = COLORS[cat.colorIdx % COLORS.length];
+  const items = protocolos.filter(p=>p.categoriaId===cat.id).sort((a,b)=>a.numero.localeCompare(b.numero));
+
+  let html = `<div class="cat-header">
+    <div class="cat-icon" style="background:${c.soft}; color:${c.icon};">${folderIcon()}</div>
+    <h2>${escapeHtml(cat.nome)}</h2>
+    <div class="cat-header-actions">
+      ${editMode?`<button class="btn sm" data-action="renameCat">${editIcon()} Renomear</button>
+      <button class="btn sm" data-action="colorCat">${paletteIcon()} Cor</button>
+      <button class="btn sm danger" data-action="deleteCat">${trashIcon()} Excluir</button>
+      <button class="btn sm primary" data-action="newProtocolo">${plusIcon()} Nova configuração</button>`:''}
+    </div>
+  </div>`;
+
+  if(items.length===0){
+    html += `<div class="empty-block">
+      <div class="ico">${fileIcon()}</div>
+      <h3>Nenhuma configuração nesta categoria</h3>
+      <p>${editMode?'Cadastre a primeira configuração desta categoria.':'Ative o modo de edição para começar a cadastrar.'}</p>
+      ${editMode?`<button class="btn primary" data-action="newProtocolo">${plusIcon()} Nova configuração</button>`:''}
+    </div>`;
+  } else {
+    html += `<div class="protocol-list">${items.map(p=>protocolRowHtml(p)).join('')}</div>`;
+  }
+
+  $('#content').innerHTML = html;
+
+  $$('[data-action=openProtocolo]', $('#content')).forEach(el=>{
+    el.addEventListener('click', ()=>{ view='protocol'; activeProtocoloId=el.dataset.id; renderAll(); });
+  });
+  const newBtn = $$('[data-action=newProtocolo]', $('#content'));
+  newBtn.forEach(b=>b.addEventListener('click', ()=>{ view='newProtocol'; renderAll(); }));
+
+  const renameBtn = $('[data-action=renameCat]', $('#content'));
+  if(renameBtn) renameBtn.addEventListener('click', ()=>{
+    openPromptModal({title:'Renomear categoria', label:'Nome da categoria', value:cat.nome, onConfirm: async (nome)=>{
+      cat.nome = nome; await saveCategorias(); showToast('Categoria renomeada'); renderAll();
+    }});
+  });
+  const colorBtn = $('[data-action=colorCat]', $('#content'));
+  if(colorBtn) colorBtn.addEventListener('click', ()=> openColorModal(cat));
+  const delBtn = $('[data-action=deleteCat]', $('#content'));
+  if(delBtn) delBtn.addEventListener('click', ()=>{
+    openConfirmModal({
+      title:'Excluir categoria',
+      message: items.length>0
+        ? `Esta categoria tem ${items.length} configuração(ões). Elas também serão excluídas. Esta ação não pode ser desfeita.`
+        : 'Esta ação não pode ser desfeita.',
+      onConfirm: async ()=>{
+        protocolos = protocolos.filter(p=>p.categoriaId!==cat.id);
+        categorias = categorias.filter(c2=>c2.id!==cat.id);
+        await saveCategorias(); await saveProtocolos();
+        view='home'; activeCategoriaId=null;
+        showToast('Categoria excluída');
+        renderAll();
+      }
+    });
+  });
+}
+
+/* ===================== PROTOCOL FORM (create) ===================== */
+function blankProtocolo(){
+  return {id:uid(), numero:'', titulo:'', categoriaId:activeCategoriaId, unidade:'', fluxo:'Fluxo Livre',
+    tramitacao:false, credor:false, arquivos:false, valor:false, quando:'', exemplos:[],
+    naoUtilizar:'', atencao:'', observacao:'', comoCadastrar:'', link:'', notas:''};
+}
+
+function renderProtocolFormPage(protocolo, isNew){
+  draftExemplos = (protocolo.exemplos || []).slice();
+  const catOptions = categorias.map(c=>`<option value="${c.id}" ${c.id===protocolo.categoriaId?'selected':''}>${escapeHtml(c.nome)}</option>`).join('');
+
+  let html = `<div class="detail-card">
+    <div class="detail-head">
+      <h2>${isNew?'Nova configuração':'Editar configuração'}</h2>
+    </div>
+    <div class="detail-body">
+      <div class="field-row">
+        <div class="field"><label>Número</label><input type="text" id="f_numero" value="${escapeHtml(protocolo.numero)}" placeholder="Ex: 049" /></div>
+        <div class="field"><label>Categoria</label><select id="f_categoria">${catOptions}</select></div>
+      </div>
+      <div class="field"><label>Título</label><input type="text" id="f_titulo" value="${escapeHtml(protocolo.titulo)}" placeholder="Ex: Solicitação de Compra de Equipamentos" /></div>
+      <div class="field-row">
+        <div class="field"><label>Unidade responsável</label><input type="text" id="f_unidade" value="${escapeHtml(protocolo.unidade)}" placeholder="Ex: Secretaria demandante" /></div>
+        <div class="field"><label>Tipo de fluxo</label>
+          <select id="f_fluxo">
+            <option ${protocolo.fluxo==='Fluxo Livre'?'selected':''}>Fluxo Livre</option>
+            <option ${protocolo.fluxo==='Fluxo Obrigatório'?'selected':''}>Fluxo Obrigatório</option>
+            <option ${protocolo.fluxo==='Sem Fluxo'?'selected':''}>Sem Fluxo</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field"><label>Campos exigidos no cadastramento</label>
+        <div class="toggle-grid">
+          <div class="toggle-card editing ${protocolo.tramitacao?'on':''}" data-toggle="tramitacao"><span class="k">Tramitação</span><span class="v">${protocolo.tramitacao?'Sim':'Não'}</span></div>
+          <div class="toggle-card editing ${protocolo.credor?'on':''}" data-toggle="credor"><span class="k">Credor</span><span class="v">${protocolo.credor?'Sim':'Não'}</span></div>
+          <div class="toggle-card editing ${protocolo.arquivos?'on':''}" data-toggle="arquivos"><span class="k">Arquivos</span><span class="v">${protocolo.arquivos?'Sim':'Não'}</span></div>
+          <div class="toggle-card editing ${protocolo.valor?'on':''}" data-toggle="valor"><span class="k">Valor (R$)</span><span class="v">${protocolo.valor?'Sim':'Não'}</span></div>
+        </div>
+      </div>
+
+      <div class="field"><label>Quando utilizar</label><textarea id="f_quando" placeholder="Descreva a finalidade deste tipo de configuração...">${escapeHtml(protocolo.quando)}</textarea></div>
+
+      <div class="field"><label>Exemplos</label>
+        <div class="tag-input-wrap" id="tagWrap">
+          ${draftExemplos.map((ex,i)=>`<span class="tag-chip" data-i="${i}">${escapeHtml(ex)}<button data-removetag="${i}">&times;</button></span>`).join('')}
+          <input type="text" id="tagInput" placeholder="Digite e pressione Enter" />
+        </div>
+      </div>
+
+      <div class="field"><label>Não utilizar para (opcional)</label><textarea id="f_nao" placeholder="Quando não usar esta configuração...">${escapeHtml(protocolo.naoUtilizar)}</textarea></div>
+      <div class="field"><label>Atenção (opcional)</label><textarea id="f_atencao" placeholder="Alertas importantes...">${escapeHtml(protocolo.atencao)}</textarea></div>
+      <div class="field"><label>Observação prática (opcional)</label><textarea id="f_obs" placeholder="Observações adicionais...">${escapeHtml(protocolo.observacao)}</textarea></div>
+      <div class="field"><label>Como cadastrar com segurança (opcional)</label><textarea id="f_comocad" placeholder="Orientações de cadastramento...">${escapeHtml(protocolo.comoCadastrar)}</textarea></div>
+      <div class="field"><label>Link no sistema (opcional)</label><input type="url" id="f_link" value="${escapeHtml(protocolo.link)}" placeholder="https://..." /></div>
+      <div class="field"><label>Notas internas (opcional)</label><textarea id="f_notas" placeholder="Observações internas, contatos do setor...">${escapeHtml(protocolo.notas)}</textarea></div>
+
+      <div class="save-bar">
+        <button class="btn" id="cancelForm">Cancelar</button>
+        <button class="btn primary" id="saveForm">${isNew?'Criar configuração':'Salvar alterações'}</button>
+      </div>
+    </div>
+  </div>`;
+
+  $('#content').innerHTML = html;
+
+  $$('.toggle-card', $('#content')).forEach(card=>{
+    card.addEventListener('click', ()=>{
+      const key = card.dataset.toggle;
+      protocolo[key] = !protocolo[key];
+      card.classList.toggle('on', protocolo[key]);
+      $('.v', card).textContent = protocolo[key] ? 'Sim' : 'Não';
+    });
+  });
+
+  const tagInput = $('#tagInput');
+  function refreshTags(){
+    const wrap = $('#tagWrap');
+    wrap.querySelectorAll('.tag-chip').forEach(n=>n.remove());
+    draftExemplos.forEach((ex,i)=>{
+      const span = document.createElement('span');
+      span.className='tag-chip';
+      span.innerHTML = `${escapeHtml(ex)}<button data-removetag="${i}">&times;</button>`;
+      wrap.insertBefore(span, tagInput);
+    });
+    $$('button[data-removetag]', wrap).forEach(btn=>{
+      btn.addEventListener('click', ()=>{ draftExemplos.splice(parseInt(btn.dataset.removetag,10),1); refreshTags(); });
+    });
+  }
+  tagInput.addEventListener('keydown', (e)=>{
+    if(e.key==='Enter'){
+      e.preventDefault();
+      const v = tagInput.value.trim();
+      if(v){ draftExemplos.push(v); tagInput.value=''; refreshTags(); }
+    }
+  });
+
+  $('#cancelForm').addEventListener('click', ()=>{
+    view = activeProtocoloId ? 'protocol' : 'category';
+    renderAll();
+  });
+
+  $('#saveForm').addEventListener('click', async ()=>{
+    const numero = $('#f_numero').value.trim();
+    const titulo = $('#f_titulo').value.trim();
+    if(!numero || !titulo){ alert('Preencha ao menos o número e o título da configuração.'); return; }
+    protocolo.numero = numero;
+    protocolo.titulo = titulo;
+    protocolo.categoriaId = $('#f_categoria').value;
+    protocolo.unidade = $('#f_unidade').value.trim();
+    protocolo.fluxo = $('#f_fluxo').value;
+    protocolo.quando = $('#f_quando').value.trim();
+    protocolo.exemplos = draftExemplos.slice();
+    protocolo.naoUtilizar = $('#f_nao').value.trim();
+    protocolo.atencao = $('#f_atencao').value.trim();
+    protocolo.observacao = $('#f_obs').value.trim();
+    protocolo.comoCadastrar = $('#f_comocad').value.trim();
+    protocolo.link = $('#f_link').value.trim();
+    protocolo.notas = $('#f_notas').value.trim();
+
+    if(isNew) protocolos.push(protocolo);
+    else { const idx = protocolos.findIndex(p=>p.id===protocolo.id); if(idx>-1) protocolos[idx]=protocolo; }
+
+    const ok = await saveProtocolos();
+    showToast(ok?'Configuração salva':'Não foi possível salvar');
+    activeCategoriaId = protocolo.categoriaId;
+    activeProtocoloId = protocolo.id;
+    view = 'protocol';
+    renderAll();
+  });
+}
+
+/* ===================== PROTOCOL DETAIL (view) ===================== */
+function attachmentBlock(protocoloId, key, label){
+  const a = attachments[protocoloId] || {};
+  const file = a[key];
+  let html = `<div class="attach-card"><span class="lbl">${label}</span>`;
+  if(file && file.data){
+    html += `<div class="attach-file">${fileIcon()}<div class="fname">${escapeHtml(file.name)}<small>${escapeHtml(file.type||'arquivo')}</small></div></div>`;
+    html += `<a class="btn sm" download="${escapeHtml(file.name)}" href="${file.data}">Baixar arquivo</a>`;
+    if(editMode) html += ` <button class="btn sm danger" data-remove="${key}" style="margin-left:8px;">Remover</button>`;
+  } else if(editMode){
+    html += `<input type="file" data-upload="${key}" />`;
+  } else {
+    html += `<p class="none-txt">Nenhum ${label.toLowerCase()} cadastrado para esta configuração.</p>`;
+  }
+  html += `</div>`;
+  return html;
+}
+
+function renderProtocolDetail(){
+  const p = protocolos.find(x=>x.id===activeProtocoloId);
+  if(!p){ view='home'; renderAll(); return; }
+  const cat = categorias.find(c=>c.id===p.categoriaId);
+  const flowClass = p.fluxo==='Fluxo Livre' ? 'flowlivre' : (p.fluxo==='Sem Fluxo' ? 'flowsem' : 'flowobrig');
+
+  let html = `<div class="detail-card">
+    <div class="detail-head">
+      <span class="num-badge">${escapeHtml(p.numero)}</span>
+      <h2>${escapeHtml(p.titulo)}</h2>
+      ${editMode?`<div class="detail-head-actions">
+        <button class="btn sm" id="editProtoBtn">${editIcon()} Editar</button>
+        <button class="btn sm danger" id="delProtoBtn">${trashIcon()} Excluir</button>
+      </div>`:''}
+    </div>
+    <div class="detail-body">
+      <p style="font-size:13px; color:var(--ink-faint); margin:0 0 18px;">${cat?escapeHtml(cat.nome):''}${p.unidade?` · ${escapeHtml(p.unidade)}`:''}</p>
+
+      <div class="meta-strip-view">
+        <span class="meta-tag ${flowClass}">${escapeHtml(p.fluxo)}</span>
+        <span class="meta-tag plain"><span class="dot ${p.tramitacao?'on':'off'}"></span>Tramitação: ${p.tramitacao?'Sim':'Não'}</span>
+        <span class="meta-tag plain"><span class="dot ${p.credor?'on':'off'}"></span>Credor: ${p.credor?'Sim':'Não'}</span>
+        <span class="meta-tag plain"><span class="dot ${p.arquivos?'on':'off'}"></span>Arquivos: ${p.arquivos?'Sim':'Não'}</span>
+        <span class="meta-tag plain"><span class="dot ${p.valor?'on':'off'}"></span>Valor (R$): ${p.valor?'Sim':'Não'}</span>
+      </div>`;
+
+  if(p.quando){
+    html += `<div class="section"><h3>Quando utilizar</h3><p>${escapeHtml(p.quando)}</p></div>`;
+  }
+  if(p.exemplos && p.exemplos.length){
+    html += `<div class="section"><h3>Exemplos</h3><div class="pillbox">${p.exemplos.map(x=>`<span>${escapeHtml(x)}</span>`).join('')}</div></div>`;
+  }
+  if(p.naoUtilizar){
+    html += `<div class="section"><h3>Não utilizar para</h3><div class="warn-box">${escapeHtml(p.naoUtilizar)}</div></div>`;
+  }
+  if(p.atencao){
+    html += `<div class="section"><h3>Atenção</h3><div class="warn-box">${escapeHtml(p.atencao)}</div></div>`;
+  }
+  if(p.observacao){
+    html += `<div class="section"><h3>Observação prática</h3><div class="note-box">${escapeHtml(p.observacao)}</div></div>`;
+  }
+  if(p.comoCadastrar){
+    html += `<div class="section"><h3>Como cadastrar com segurança</h3><p>${escapeHtml(p.comoCadastrar)}</p></div>`;
+  }
+
+  html += `<div class="section"><h3>Modelos e anexos</h3>
+    <div class="attach-grid">
+      ${attachmentBlock(p.id,'anexoModelo','Anexo modelo')}
+      ${attachmentBlock(p.id,'oficioModelo','Ofício modelo')}
+    </div>
+  </div>`;
+
+  html += `<div class="section"><h3>Link no sistema</h3>`;
+  if(p.link){ html += `<p><a href="${escapeHtml(p.link)}" target="_blank" rel="noopener">${escapeHtml(p.link)}</a></p>`; }
+  else { html += `<p class="none-txt">Nenhum link cadastrado.</p>`; }
+  html += `</div>`;
+
+  html += `<div class="section"><h3>Notas internas</h3>`;
+  if(p.notas){ html += `<p>${escapeHtml(p.notas).replace(/\n/g,'<br>')}</p>`; }
+  else { html += `<p class="none-txt">Nenhuma nota interna cadastrada.</p>`; }
+  html += `</div>`;
+
+  html += `</div></div>`;
+  $('#content').innerHTML = html;
+
+  const editBtn = $('#editProtoBtn');
+  if(editBtn) editBtn.addEventListener('click', ()=>{ view='editProtocol'; renderAll(); });
+  const delBtn = $('#delProtoBtn');
+  if(delBtn) delBtn.addEventListener('click', ()=>{
+    openConfirmModal({
+      title:'Excluir configuração', message:`Tem certeza que deseja excluir a configuração ${p.numero} — ${p.titulo}? Esta ação não pode ser desfeita.`,
+      onConfirm: async ()=>{
+        protocolos = protocolos.filter(x=>x.id!==p.id);
+        await saveProtocolos();
+        view='category';
+        showToast('Configuração excluída');
+        renderAll();
+      }
+    });
+  });
+
+  $$('input[type=file][data-upload]', $('#content')).forEach(inp=>{
+    inp.addEventListener('change', async (ev)=>{
+      const f = ev.target.files[0];
+      if(!f) return;
+      if(f.size > 4.5*1024*1024){ alert('Arquivo muito grande. O limite é de aproximadamente 4,5 MB.'); return; }
+      const reader = new FileReader();
+      reader.onload = async ()=>{
+        const cur = attachments[p.id] || {};
+        cur[inp.dataset.upload] = {name:f.name, type:f.type||'arquivo', data:reader.result};
+        const ok = await saveAttachment(p.id, cur);
+        showToast(ok?'Arquivo salvo':'Não foi possível salvar o arquivo');
+        renderAll();
+      };
+      reader.readAsDataURL(f);
+    });
+  });
+  $$('button[data-remove]', $('#content')).forEach(btn=>{
+    btn.addEventListener('click', async ()=>{
+      const cur = attachments[p.id] || {};
+      delete cur[btn.dataset.remove];
+      await saveAttachment(p.id, cur);
+      showToast('Anexo removido');
+      renderAll();
+    });
+  });
+}
+
+/* ===================== RENDER ROOT ===================== */
+function renderContentOnly(){
+  if(view==='home') renderHome();
+  else if(view==='category') renderCategoryView();
+  else if(view==='protocol') renderProtocolDetail();
+  else if(view==='newProtocol') renderProtocolFormPage(blankProtocolo(), true);
+  else if(view==='editProtocol'){
+    const p = protocolos.find(x=>x.id===activeProtocoloId);
+    if(p) renderProtocolFormPage(Object.assign({}, p), false);
+    else { view='home'; renderHome(); }
+  }
+}
+
+function renderCrumb(){
+  const crumb = $('#crumb');
+  if(view==='home'){ crumb.innerHTML = '<b>Início</b>'; return; }
+  const cat = categorias.find(c=>c.id===activeCategoriaId);
+  if(view==='category'){ crumb.innerHTML = `Início / <b>${cat?escapeHtml(cat.nome):''}</b>`; return; }
+  if(view==='protocol' || view==='editProtocol'){
+    const p = protocolos.find(x=>x.id===activeProtocoloId);
+    crumb.innerHTML = `Início / ${cat?escapeHtml(cat.nome):''} / <b>${p?escapeHtml(p.numero):''}</b>`;
+    return;
+  }
+  if(view==='newProtocol'){ crumb.innerHTML = `Início / ${cat?escapeHtml(cat.nome):''} / <b>Nova configuração</b>`; return; }
+}
+
+function renderAll(){
+  renderSidebar();
+  renderCrumb();
+  renderContentOnly();
+}
+
+/* ===================== MODE TOGGLE / TOP SEARCH ===================== */
+function setEditMode(on){
+  editMode = on;
+  $('#modeSwitch').classList.toggle('on', on);
+  $('#editPill').style.display = on ? '' : 'none';
+  $('#changePwdBtn').style.display = on ? '' : 'none';
+  renderAll();
+}
+$('#modeSwitch').addEventListener('click', ()=>{
+  if(editMode){
+    setEditMode(false);
+    return;
+  }
+  if(!senhaHash){
+    openSetPasswordModal(()=>{ setEditMode(true); showToast('Senha criada — edição liberada'); });
+  } else {
+    openCheckPasswordModal(()=>{ setEditMode(true); });
+  }
+});
+
+$('#topSearch').addEventListener('input', (e)=>{
+  searchTerm = e.target.value;
+  if(view!=='home'){ view='home'; activeCategoriaId=null; activeProtocoloId=null; }
+  renderAll();
+  const hs = $('#heroSearch');
+  if(hs){ hs.focus(); hs.setSelectionRange(hs.value.length, hs.value.length); }
+});
+
+/* ===================== INIT ===================== */
+$('#changePwdBtn').addEventListener('click', ()=>{
+  if(!senhaHash){ openSetPasswordModal(()=>showToast('Senha criada')); }
+  else { openChangePasswordModal(); }
+});
+(async function init(){
+  await loadAll();
+  renderAll();
+})();
+</script>
+</body>
+</html>
