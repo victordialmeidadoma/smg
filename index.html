@@ -332,7 +332,45 @@
 
   .scrollbar-thin::-webkit-scrollbar{width:6px;}
   .scrollbar-thin::-webkit-scrollbar-thumb{background:var(--line-strong); border-radius:3px;}
-  /* Regras responsivas — mantidas ao final do CSS de propósito,
+  .print-btn{
+    display:flex; align-items:center; gap:6px; padding:8px 14px; border-radius:var(--radius-sm); border:1px solid var(--line-strong);
+    background:#fff; color:var(--ink-dim); font-size:13px; font-weight:600; cursor:pointer; flex-shrink:0;
+    font-family:'Inter',sans-serif;
+  }
+  .print-btn:hover{background:var(--surface-alt); color:var(--ink);}
+
+  /* ---------- Estilos de impressão ---------- */
+  @media print {
+    * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    body { background: #fff; }
+    .sidebar, .topbar, .sidebar-overlay, .save-toast, .modal-overlay { display: none !important; }
+    .app { display: block; }
+    .main { height: auto; overflow: visible; }
+    .content { padding: 0; }
+
+    /* Página inicial — imprime a tabela completa */
+    .hero { display: none; }
+    .home-toolbar { display: none; }
+    .print-header { display: block !important; }
+    .table-wrap { box-shadow: none; border: 1px solid #ccc; border-radius: 0; }
+    table.data-table thead th { background: #f3f4f6 !important; }
+    table.data-table tbody tr:hover { background: none !important; }
+    table.data-table tbody tr { page-break-inside: avoid; }
+
+    /* Detalhe de configuração */
+    .detail-card { box-shadow: none; border: none; max-width: 100%; }
+    .detail-head-actions, .save-bar, .attach-card input[type=file], button[data-remove] { display: none !important; }
+    .warn-box, .note-box { border-left-width: 3px; }
+    .section { page-break-inside: avoid; }
+    a[href]::after { content: none; }
+  }
+
+  .print-header {
+    display: none;
+    margin-bottom: 20px;
+  }
+  .print-header h1 { font-size: 18px; font-weight: 700; margin: 0 0 4px; }
+  .print-header p { font-size: 12px; color: #6b7280; margin: 0; }
      para garantir que sempre vençam sobre as regras de desktop. */
   @media (max-width:880px){
     .app{grid-template-columns:1fr;}
@@ -374,6 +412,10 @@
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         <input type="search" id="topSearch" placeholder="Buscar configuração..." />
       </div>
+      <button class="print-btn" id="printBtn" title="Imprimir">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+        Imprimir
+      </button>
     </div>
     <div class="content" id="content"></div>
   </main>
@@ -918,7 +960,12 @@ let homeCategoryFilter = '';
 
 function renderHome(){
   const term = searchTerm.trim();
+  const now = new Date().toLocaleDateString('pt-BR', {day:'2-digit', month:'2-digit', year:'numeric'});
   let html = `
+    <div class="print-header">
+      <h1>OTEN Gestão — Configurações do Sistema</h1>
+      <p>Emitido em ${now}${homeCategoryFilter ? ' · ' + escapeHtml((categorias.find(c=>c.id===homeCategoryFilter)||{}).nome||'') : ''}</p>
+    </div>
     <div class="hero">
       <div class="eyebrow">Sistema de gestão municipal</div>
       <h2>OTEN Gestão</h2>
@@ -1253,7 +1300,13 @@ function renderProtocolDetail(){
   const cat = categorias.find(c=>c.id===p.categoriaId);
   const flowClass = p.fluxo==='Fluxo Livre' ? 'flowlivre' : (p.fluxo==='Sem Fluxo' ? 'flowsem' : 'flowobrig');
 
-  let html = `<div class="detail-card">
+  const now = new Date().toLocaleDateString('pt-BR', {day:'2-digit', month:'2-digit', year:'numeric'});
+  let html = `
+  <div class="print-header">
+    <h1>OTEN Gestão — ${escapeHtml(p.numero)} · ${escapeHtml(p.titulo)}</h1>
+    <p>Emitido em ${now}${cat ? ' · ' + escapeHtml(cat.nome) : ''}</p>
+  </div>
+  <div class="detail-card">
     <div class="detail-head">
       <span class="num-badge">${escapeHtml(p.numero)}</span>
       <h2>${escapeHtml(p.titulo)}</h2>
@@ -1433,6 +1486,7 @@ $('#sidebar').addEventListener('click', (e)=>{
 });
 
 /* ===================== INIT ===================== */
+$('#printBtn').addEventListener('click', ()=> window.print());
 $('#changePwdBtn').addEventListener('click', ()=>{
   if(!senhaHash){ openSetPasswordModal(()=>showToast('Senha criada')); }
   else { openChangePasswordModal(); }
